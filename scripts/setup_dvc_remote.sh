@@ -9,7 +9,7 @@ else
   exit 1
 fi
 
-dvc remote modify origin --local access_key_id "$DVC_DAGSHUB_TOKEN"
-dvc remote modify origin --local secret_access_key "$DVC_DAGSHUB_TOKEN"
+dvc remote modify storage --local access_key_id "$DVC_DAGSHUB_TOKEN"
+dvc remote modify storage --local secret_access_key "$DVC_DAGSHUB_TOKEN"
 
 echo "Credenciales del remote de DVC configuradas correctamente."
