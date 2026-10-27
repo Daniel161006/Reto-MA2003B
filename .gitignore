@@ -19,6 +19,7 @@ models/
 
 ## Datos: Ajustar extensiones según se necesite
 data/raw/*.csv
+data/raw/*.xlsx
 data/processed/*.csv
 !data/processed/.gitkeep
 

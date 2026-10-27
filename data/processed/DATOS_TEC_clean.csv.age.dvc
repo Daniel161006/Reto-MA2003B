@@ -1,0 +1,5 @@
+outs:
+- md5: 00336a547bef444f64fa1d0fbf580d4a
+  size: 92267
+  hash: md5
+  path: DATOS_TEC_clean.csv.age
