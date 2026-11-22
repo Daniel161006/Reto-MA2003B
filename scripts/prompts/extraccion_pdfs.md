@@ -10,6 +10,8 @@ El prompt listo para copiar está al final de este archivo.
 4. Agrega los objetos a la lista de `data/processed/competencia_extraccion.json`.
 5. Corre `notebooks/02_pdfs.ipynb`: normaliza al esquema de `DATOS_TEC` (`scripts/fichas_pdf.py`), muestra avisos de
    validación y recalcula los embeddings.
+6. Para recomendar productos Interlub a partir de esa ficha: `notebooks/03_recomendar.ipynb`
+   (configura el JSON y el `nombre_producto` en la primera celda).
 
 ## Cambios respecto al prompt base de la Actividad 1 y por qué
 
