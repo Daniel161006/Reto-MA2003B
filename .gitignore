@@ -21,6 +21,10 @@ models/
 data/raw/*.csv
 data/raw/*.xlsx
 data/processed/*.csv
+data/processed/*.json
+data/processed/*.npz
+## PDFs de fichas técnicas (pendiente decidir si se cifran con DVC)
+data/raw/pdfs/
 !data/processed/.gitkeep
 
 ## Reportes
