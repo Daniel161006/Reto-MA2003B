@@ -88,7 +88,22 @@ def recomendar_ficha(ficha, interlub, k=5, texto=None, peso_texto=0.0):
     return recs, avisos, tabla
 
 
-def imprimir(ficha, recs, avisos, tabla):
+def imprimir_nuevo(ficha, prop):
+    if prop is None:
+        return
+    print("\nPRODUCTO NUEVO: ningún producto Interlub es sustituto directo. Especificación propuesta:")
+    for r in prop["requisitos"]:
+        print(f"  - {r['propiedad']}: {r['valor']}")
+    if prop["base"] is not None:
+        print(f"  Partir de: {prop['base']}")
+        for c in prop["cambios"]:
+            print(f"    · {c}")
+    for c in prop["pistas"]:
+        print(f"  Catálogo: {c}")
+    print()
+
+
+def imprimir(ficha, recs, avisos, tabla, propuesta=None):
     nombre = ficha["nombre_producto"]
     marca = ficha.get("marca")
     print("=" * 100)
@@ -98,9 +113,10 @@ def imprimir(ficha, recs, avisos, tabla):
         print("•", a)
     if recs.empty:
         print("\nNingún producto Interlub pasa los filtros.")
+        imprimir_nuevo(ficha, propuesta)
         return
     print("\nRecomendaciones:")
-    cols = [c for c in recs.columns if c not in ("por_que", "advertencias")]
+    cols = [c for c in recs.columns if c not in ("por_que", "advertencias", "detalle")]
     print(recs[cols].to_string(index=False))
     print("\nPor qué:")
     for _, r in recs.iterrows():
@@ -110,6 +126,7 @@ def imprimir(ficha, recs, avisos, tabla):
     print("\nComparación lado a lado:")
     print(tabla.to_string())
     print()
+    imprimir_nuevo(ficha, propuesta)
 
 
 def nombre_archivo(nombre):
@@ -149,11 +166,12 @@ def main(argv=None):
     texto = preparar_texto(interlub) if a.texto else None
     for _, ficha in consulta.iterrows():
         recs, avisos, tabla = recomendar_ficha(ficha, interlub, a.k, texto, a.peso_texto)
-        imprimir(ficha, recs, avisos, tabla)
+        propuesta = R.propuesta_nuevo(ficha, interlub, recs) if R.necesita_nuevo(recs) else None
+        imprimir(ficha, recs, avisos, tabla, propuesta)
         if a.guardar and not recs.empty:
             REPORTES.mkdir(exist_ok=True)
             ruta = REPORTES / f"recomendaciones_{nombre_archivo(ficha['nombre_producto'])}.csv"
-            recs.assign(ficha=ficha["nombre_producto"]).to_csv(ruta, index=False)
+            recs.drop(columns="detalle").assign(ficha=ficha["nombre_producto"]).to_csv(ruta, index=False)
             print(f"Guardado en {ruta.relative_to(RAIZ)}\n")
     return 0
 

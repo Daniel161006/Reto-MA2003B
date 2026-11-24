@@ -1,13 +1,51 @@
 [theme]
 base = "light"
-primaryColor = "#0B5FA5"
-backgroundColor = "#FFFFFF"
-secondaryBackgroundColor = "#F2F5F9"
-textColor = "#1B2430"
-font = "sans serif"
+primaryColor = "#0D2C36"
+backgroundColor = "#EEF1F3"
+secondaryBackgroundColor = "#F7F9FA"
+textColor = "#18232E"
+borderColor = "#D5DCE1"
+showWidgetBorder = true
+baseRadius = "10px"
+font = "IBM Plex Sans, system-ui, sans-serif"
+headingFont = "IBM Plex Sans Condensed, IBM Plex Sans, sans-serif"
+
+[[theme.fontFaces]]
+family = "IBM Plex Sans"
+url = "app/static/fonts/ibm-plex-sans-latin-400-normal.woff2"
+weight = 400
+
+[[theme.fontFaces]]
+family = "IBM Plex Sans"
+url = "app/static/fonts/ibm-plex-sans-latin-500-normal.woff2"
+weight = 500
+
+[[theme.fontFaces]]
+family = "IBM Plex Sans"
+url = "app/static/fonts/ibm-plex-sans-latin-600-normal.woff2"
+weight = 600
+
+[[theme.fontFaces]]
+family = "IBM Plex Sans Condensed"
+url = "app/static/fonts/ibm-plex-sans-condensed-latin-500-normal.woff2"
+weight = 500
+
+[[theme.fontFaces]]
+family = "IBM Plex Sans Condensed"
+url = "app/static/fonts/ibm-plex-sans-condensed-latin-600-normal.woff2"
+weight = 600
+
+[[theme.fontFaces]]
+family = "IBM Plex Sans Condensed"
+url = "app/static/fonts/ibm-plex-sans-condensed-latin-700-normal.woff2"
+weight = 700
 
 [server]
 maxUploadSize = 20
+enableStaticServing = true  # sirve app/static/ (las letras van dentro del proyecto, no dependen de internet)
+
+[client]
+toolbarMode = "viewer"
 
 [browser]
 gatherUsageStats = false

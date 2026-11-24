@@ -48,7 +48,11 @@ Se abre en el navegador. Ahí se puede:
 
 El resultado son tarjetas con el porcentaje de parecido, el porqué (✓ igual o mejor, ~ algo distinto, ✗ muy distinto), una tabla de comparación y un botón para descargar el CSV.
 
-El catálogo se lee de `data/processed/DATOS_TEC_clean.csv`. Si no existe en el servidor, la página pide subirlo desde la barra lateral.
+El catálogo se lee de `data/processed/DATOS_TEC_clean.csv`. Si no existe, la página deja llenar la ficha igual y pide subir el catálogo para comparar.
+
+Para probarla sin los datos reales: `INTERLUB_CSV=tests/datos/interlub_ejemplo.csv uv run streamlit run app/app.py`.
+
+El diseño (colores y letras) está en `.streamlit/config.toml`. Las letras IBM Plex van dentro del proyecto (`app/static/fonts/`, licencia OFL), así que se ven bien aunque no haya internet.
 
 ### Publicarla con un link (Streamlit Community Cloud)
 
@@ -64,6 +68,7 @@ Todo está en `scripts/recomendador.py`, con constantes arriba del archivo fáci
 - **Quedarse corto por arriba en temperatura castiga más que por abajo**: la vida del producto se reduce a la mitad por cada ~10 °C de más. Por eso cada 10 °C faltantes arriba bajan la similitud a la mitad, y por abajo baja linealmente.
 - **Propiedades de desempeño** (punto de gota, presión extrema, etc.): si Interlub es igual o mejor cuenta completo; solo castiga si es peor.
 - **NLGI, viscosidad y temperatura** además multiplican el puntaje, para que un ✗ en ellas no se compense con lo demás.
+- **Producto nuevo**: si ningún producto llega a sustituto directo (75 %), o ninguno pasa los filtros, propone la especificación de un producto a desarrollar: qué debe cumplir, de qué producto Interlub partir, qué cambiarle y qué muestra el catálogo. Solo usa la ficha y el catálogo, no inventa fórmulas. Se puede descargar en TXT.
 - **Advertencias** (no cambian el puntaje): si cambia el espesante o el aceite base, avisa que hay que limpiar o probar la compatibilidad. No se usa una tabla fija de compatibilidad porque las tablas publicadas se contradicen entre sí.
 
 Para saber qué pesos importan de verdad, con el catálogo descifrado:

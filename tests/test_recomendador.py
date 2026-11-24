@@ -180,3 +180,59 @@ def test_advierte_cambio_de_espesante():
     adv = recs.set_index("codigoproducto")["advertencias"]
     assert adv["IGUAL"] == ""
     assert "espesante" in adv["POLIUREA"] and "compatibilidad" in adv["POLIUREA"]
+
+
+# --- producto nuevo ------------------------------------------------------------------------------------------
+
+
+def test_no_propone_nuevo_si_hay_sustituto_directo(fichas, interlub):
+    recs, _ = R.recomendar(ficha(fichas, "FICTIGRASA EP 2"), interlub)
+    assert not R.necesita_nuevo(recs)
+
+
+def test_propone_nuevo_si_nadie_cumple_temperatura(interlub):
+    f = pd.Series(_prod("CALIENTE", nombre_producto="CALIENTE", temperatura_de_servicio_c_max=230.0,
+                        temperatura_de_servicio_c_min=-30.0, punto_de_gota_c=300.0))
+    recs, _ = R.recomendar(f, interlub)
+    assert recs.empty and R.necesita_nuevo(recs)
+    p = R.propuesta_nuevo(f, interlub, recs)
+    assert p["base"] == "G-LITIO-2"  # lo más parecido en lo demás
+    assert any("Temperatura máxima: subir de 160 a 230" in c for c in p["cambios"])
+    assert any("Temperatura mínima" in c for c in p["cambios"])
+    assert any("Punto de gota: subir de 280 a 300" in c for c in p["cambios"])
+    assert any("Ningún producto del catálogo llega a 230" in t for t in p["pistas"])
+    assert {"propiedad": "Temperatura de uso", "valor": "cubrir -30 a 230 °C"} in p["requisitos"]
+
+
+def test_propone_nuevo_si_el_mejor_no_es_directo(interlub):
+    f = pd.Series({"nombre_producto": "ESPESA", "familia": "grasa", "grado_nlgi_por_penetracion": 1.0,
+                   "temperatura_de_servicio_c_max": 160.0, "viscosidad_del_aceite_base_a_40c_cst": 460.0,
+                   "tiene_registro_nsf": True})
+    recs, _ = R.recomendar(f, interlub)
+    assert not recs.empty and R.necesita_nuevo(recs)
+    p = R.propuesta_nuevo(f, interlub, recs)
+    assert p["base"] == "G-ALIM-2" and p["base_puntaje"] == recs.iloc[0]["puntaje"]
+    assert any("NLGI 2 a NLGI 1" in c for c in p["cambios"])
+    assert any("de 220 a 460 cSt" in c for c in p["cambios"])
+    assert not any("NSF" in c for c in p["cambios"])  # la base ya tiene NSF
+
+
+def test_nuevo_sin_productos_nsf_lo_dice():
+    cat = pd.DataFrame([_prod("SIN-NSF")])
+    f = pd.Series(_prod("ALIM", nombre_producto="ALIM", tiene_registro_nsf=True))
+    recs, _ = R.recomendar(f, cat)
+    p = R.propuesta_nuevo(f, cat, recs)
+    assert p["base"] == "SIN-NSF"
+    assert any("registro NSF H1" in c for c in p["cambios"])
+    assert any("sería el primero" in t for t in p["pistas"])
+
+
+def test_cli_muestra_producto_nuevo(tmp_path, capsys):
+    import json
+    reg = [{"nombre_producto": "CALIENTE 2", "familia": "grasa", "propiedades": {
+        "grado_nlgi": {"valor": "2"}, "temperatura_servicio_max": {"valor": "230", "unidad": "°C"}}}]
+    ruta = tmp_path / "f.json"
+    ruta.write_text(json.dumps(reg), encoding="utf-8")
+    CLI.main([str(ruta), "--interlub", str(DATOS / "interlub_ejemplo.csv")])
+    out = capsys.readouterr().out
+    assert "PRODUCTO NUEVO" in out and "Temperatura máxima: subir" in out
