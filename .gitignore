@@ -28,6 +28,8 @@ data/raw/pdfs/
 !data/processed/.gitkeep
 
 ## Reportes
+## salidas del recomendador (pueden incluir datos de Interlub)
+reports/recomendaciones_*.csv
 !reports/figures/.gitkeep
 
 ## Archivos del sistema operativo

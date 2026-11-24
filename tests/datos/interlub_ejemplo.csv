@@ -1,0 +1,8 @@
+codigoproducto,familia,espesante,aceite_base,grado_nlgi_consistencia,grado_nlgi_por_penetracion,temperatura_de_servicio_c_min,temperatura_de_servicio_c_max,punto_de_gota_c,viscosidad_del_aceite_base_a_40c_cst,viscosidad_a_40c_cst,punto_de_soldadura_cuatro_bolas_kgf,desgaste_cuatro_bolas_mm,tiene_registro_nsf
+G-LITIO-2,grasa,complejo de litio,mineral,2,2,-20,160,280,220,,400,0.5,False
+G-LITIO-1,grasa,complejo de litio,mineral,1,1,-25,150,270,150,,315,0.55,False
+G-SULF-2,grasa,complejo sulfonato de calcio,mineral,2,2,-20,180,300,460,,620,0.45,False
+G-POLIUREA-2,grasa,poliurea,pao,2,2,-40,200,260,100,,250,0.6,False
+G-ALIM-2,grasa,complejo sulfonato de calcio,mineral usp,2,2,-20,170,300,220,,500,0.5,True
+G-FRIA-2,grasa,complejo de litio,mineral,2,2,-10,100,250,220,,400,0.5,False
+A-ENGR-220,aceite,,mineral,,,-10,100,,,220,250,,False

@@ -27,3 +27,6 @@ dependencies = [
     "sentence-transformers>=6.3.0",
     "statsmodels>=0.15.0",
 ]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
