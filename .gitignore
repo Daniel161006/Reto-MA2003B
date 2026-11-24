@@ -30,6 +30,7 @@ data/raw/pdfs/
 ## Reportes
 ## salidas del recomendador (pueden incluir datos de Interlub)
 reports/recomendaciones_*.csv
+reports/sensibilidad_pesos.csv
 !reports/figures/.gitkeep
 
 ## Archivos del sistema operativo

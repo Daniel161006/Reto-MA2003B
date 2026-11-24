@@ -3,7 +3,8 @@ Interlub que mejor encajan y explica por qué.
 
 Capas:
 1. Filtros (descartan): misma familia; el rango de temperatura de servicio de Interlub cubre el de la ficha
-   (con tolerancia de TOL_TEMP); si la ficha es grado alimenticio (NSF/H1), solo productos con registro NSF.
+   (tolerancia de 5 °C por arriba y 10 °C por abajo); si la ficha es grado alimenticio (NSF/H1), solo productos
+   con registro NSF.
 2. Parecido técnico (ordena): cada propiedad que tienen ambos productos aporta una similitud entre 0 y 1 con
    tolerancias técnicas (ver COMPARACIONES); la temperatura también suma. Espesante y aceite base suman si
    coinciden. Los datos faltantes no castigan, pero un producto comparado en pocas propiedades pesa menos
@@ -13,6 +14,9 @@ Capas:
    puntaje = parecido × √cobertura × factor_critico
 4. Texto (opcional): similitud de embeddings, informativa. Con peso_texto=0 (default) no cambia el orden,
    porque las fichas en texto se parecen demasiado entre sí para distinguir productos.
+
+5. Advertencias (no cambian el puntaje): si cambia el espesante o el aceite base, avisa que hay que limpiar o
+   probar la compatibilidad antes de mezclar.
 
 Las tolerancias son criterio técnico propuesto por el equipo: validarlas con Interlub.
 
@@ -24,10 +28,12 @@ import fichas_pdf as F
 import numpy as np
 import pandas as pd
 
-TOL_TEMP = (
-    10  # °C: el filtro acepta productos a los que les falte hasta esto en cada extremo
-)
-FALTA_TEMP_CERO = 20  # °C faltantes (sumando ambos extremos) con los que la similitud de temperatura llega a 0
+# Temperatura: quedarse corto por ARRIBA es más grave que por abajo. La vida de una grasa/aceite se reduce a la
+# mitad por cada ~10 °C de más (oxidación), mientras que por abajo el problema es de arranque y bombeo.
+TOL_TEMP_ARRIBA = 5  # °C: el filtro acepta productos a los que les falte hasta esto en el límite superior
+TOL_TEMP_ABAJO = 10  # °C: idem en el límite inferior
+MITAD_VIDA_C = 10  # °C faltantes arriba con los que la similitud baja a la mitad (0.5 ** (falta / 10))
+FALTA_ABAJO_CERO = 20  # °C faltantes abajo con los que la similitud llega a 0 (baja linealmente)
 PESO_TEMPERATURA = 1.5
 # properties a substitute cannot get wrong: each multiplies the score by (PISO_CRITICO + (1 - PISO_CRITICO) × sim),
 # i.e. ✓ ≈ ×1, ~ ≈ ×0.75, ✗ = ×0.5. Temperature is critical too (see recomendar).
@@ -129,9 +135,9 @@ def _filtrar(f, cand):
         sin_dato = cand["temperatura_de_servicio_c_max"].isna()
         cubre = pd.Series(True, index=cand.index)
         if pd.notna(tmax):
-            cubre &= cand["temperatura_de_servicio_c_max"] >= tmax - TOL_TEMP
+            cubre &= cand["temperatura_de_servicio_c_max"] >= tmax - TOL_TEMP_ARRIBA
         if pd.notna(tmin):
-            cubre &= cand["temperatura_de_servicio_c_min"] <= tmin + TOL_TEMP
+            cubre &= cand["temperatura_de_servicio_c_min"] <= tmin + TOL_TEMP_ABAJO
         if sin_dato.any():
             avisos.append(
                 f"{sin_dato.sum()} productos Interlub sin temperatura de servicio se conservaron."
@@ -149,6 +155,20 @@ def _filtrar(f, cand):
     return cand, avisos
 
 
+def _advertencias(f, prod):
+    """Avisos que no cambian el puntaje pero hay que leer antes de cambiar de producto.
+    No se usa una tabla fija de compatibilidad: las tablas publicadas se contradicen entre sí y dependen de la
+    formulación, así que solo se avisa cuando cambia el espesante o el aceite base."""
+    avisos = []
+    for col, nombre in [("espesante", "espesante"), ("aceite_base", "aceite base")]:
+        a, b = f.get(col), prod.get(col)
+        if pd.notna(a) and pd.notna(b) and a != b:
+            avisos.append(f"Cambia el {nombre} ({a} → {b}).")
+    if avisos:
+        avisos.append("Si el equipo ya tiene otra grasa/aceite, hay que limpiar o purgar, o probar la compatibilidad.")
+    return avisos
+
+
 def _temperatura(f, cand):
     """Similarity of the service range (1 = fully covers the ficha) and the reason text per product."""
     flo = f.get("temperatura_de_servicio_c_min")
@@ -159,7 +179,9 @@ def _temperatura(f, cand):
     )
     falta_arriba = (fhi - hi).clip(lower=0) if pd.notna(fhi) else hi * 0
     falta_abajo = (lo - flo).clip(lower=0) if pd.notna(flo) else lo * 0
-    sim = (1 - (falta_arriba + falta_abajo) / FALTA_TEMP_CERO).clip(0, 1)
+    sim_arriba = 0.5 ** (falta_arriba / MITAD_VIDA_C)  # 5 °C -> 0.71, 10 °C -> 0.5, 20 °C -> 0.25
+    sim_abajo = (1 - falta_abajo / FALTA_ABAJO_CERO).clip(0, 1)
+    sim = sim_arriba * sim_abajo
 
     razones = {}
     for i in cand.index:
@@ -261,6 +283,8 @@ def recomendar(ficha, interlub, k=5, sim_texto=None, peso_texto=0.0):
     if sim_texto is not None:
         puntaje = (1 - peso_texto) * puntaje + peso_texto * sim_texto.loc[cand.index]
 
+    advertencias = {i: _advertencias(f, cand.loc[i]) for i in cand.index}
+
     out = pd.DataFrame(
         {
             "codigoproducto": cand["codigoproducto"],
@@ -269,6 +293,7 @@ def recomendar(ficha, interlub, k=5, sim_texto=None, peso_texto=0.0):
             "cobertura": cobertura.round(2),
             "factor_critico": factor.round(2),
             "por_que": [" · ".join([razon_t[i], *razones[i]]) for i in cand.index],
+            "advertencias": [" ".join(advertencias[i]) for i in cand.index],
         }
     )
     if sim_texto is not None:

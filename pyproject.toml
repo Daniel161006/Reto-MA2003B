@@ -26,6 +26,7 @@ dependencies = [
     "seaborn>=0.13.2",
     "sentence-transformers>=6.3.0",
     "statsmodels>=0.15.0",
+    "streamlit>=1.40",
 ]
 
 [tool.pytest.ini_options]

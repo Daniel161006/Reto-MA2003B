@@ -100,11 +100,13 @@ def imprimir(ficha, recs, avisos, tabla):
         print("\nNingún producto Interlub pasa los filtros.")
         return
     print("\nRecomendaciones:")
-    cols = [c for c in recs.columns if c != "por_que"]
+    cols = [c for c in recs.columns if c not in ("por_que", "advertencias")]
     print(recs[cols].to_string(index=False))
     print("\nPor qué:")
     for _, r in recs.iterrows():
         print(f"  {r['codigoproducto']}: {r['por_que']}")
+        if r["advertencias"]:
+            print(f"      ⚠ {r['advertencias']}")
     print("\nComparación lado a lado:")
     print(tabla.to_string())
     print()

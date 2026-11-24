@@ -138,3 +138,45 @@ def test_cli_lista_si_hay_varios(capsys):
 def test_cli_producto_inexistente():
     with pytest.raises(SystemExit):
         CLI.main([str(JSON), "-p", "NO EXISTE", "--interlub", str(DATOS / "interlub_ejemplo.csv")])
+
+
+# --- criterios de temperatura y advertencias -----------------------------------------------------------------
+
+
+def _prod(cod, **k):
+    base = dict(codigoproducto=cod, familia="grasa", espesante="complejo de litio", aceite_base="mineral",
+                grado_nlgi_consistencia=2, grado_nlgi_por_penetracion=2, temperatura_de_servicio_c_min=-20,
+                temperatura_de_servicio_c_max=150, viscosidad_del_aceite_base_a_40c_cst=220, tiene_registro_nsf=False)
+    base.update(k)
+    return base
+
+
+def _ficha():
+    return pd.Series(_prod("FICHA", nombre_producto="FICHA"))
+
+
+def test_corto_por_arriba_pesa_mas_que_por_abajo():
+    cat = pd.DataFrame([
+        _prod("ARRIBA-5", temperatura_de_servicio_c_max=145),
+        _prod("ABAJO-5", temperatura_de_servicio_c_min=-15),
+    ])
+    recs, _ = R.recomendar(_ficha(), cat, k=2)
+    p = recs.set_index("codigoproducto")["puntaje"]
+    assert p["ARRIBA-5"] < p["ABAJO-5"]
+
+
+def test_filtro_temperatura_asimetrico():
+    cat = pd.DataFrame([
+        _prod("ARRIBA-10", temperatura_de_servicio_c_max=140),  # arriba solo se tolera 5 °C
+        _prod("ABAJO-10", temperatura_de_servicio_c_min=-10),  # abajo se toleran 10 °C
+    ])
+    recs, _ = R.recomendar(_ficha(), cat, k=5)
+    assert set(recs["codigoproducto"]) == {"ABAJO-10"}
+
+
+def test_advierte_cambio_de_espesante():
+    cat = pd.DataFrame([_prod("IGUAL"), _prod("POLIUREA", espesante="poliurea")])
+    recs, _ = R.recomendar(_ficha(), cat, k=2)
+    adv = recs.set_index("codigoproducto")["advertencias"]
+    assert adv["IGUAL"] == ""
+    assert "espesante" in adv["POLIUREA"] and "compatibilidad" in adv["POLIUREA"]
