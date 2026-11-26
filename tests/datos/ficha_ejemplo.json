@@ -1,0 +1,42 @@
+[
+  {
+    "archivo_fuente": "ficha_ficticia.pdf", "marca": "Marca Ficticia", "fabricante": "Ficticia S.A.",
+    "nombre_producto": "FICTIGRASA EP 2", "familia": "grasa",
+    "numero_producto": null, "fecha_documento": null, "reemplaza_a": "Fictigrasa Vieja",
+    "propiedades": {
+      "grado_nlgi": {"valor": "2", "unidad": null, "metodo": null, "nombre_en_pdf": "NLGI"},
+      "espesante": {"valor": "Lithium complex", "unidad": null, "metodo": null, "nombre_en_pdf": "Thickener"},
+      "aceite_base": {"valor": "Mineral", "unidad": null, "metodo": null, "nombre_en_pdf": "Base oil"},
+      "penetracion_trabajada_60": {"valor": "265-295", "unidad": "0.1 mm", "metodo": "ASTM D217", "nombre_en_pdf": "Worked penetration"},
+      "punto_de_gota": {"valor": "> 260", "unidad": "°C", "metodo": "ASTM D2265", "nombre_en_pdf": "Dropping point"},
+      "viscosidad_40c": {"valor": "220", "unidad": "cSt", "metodo": "ASTM D445", "nombre_en_pdf": "Base oil viscosity 40 °C"},
+      "temperatura_servicio_min": {"valor": "-20", "unidad": "°C", "metodo": null, "nombre_en_pdf": "Operating temperature"},
+      "temperatura_servicio_max": {"valor": "150", "unidad": "°C", "metodo": null, "nombre_en_pdf": "Operating temperature"},
+      "punto_soldadura_4_bolas": {"valor": "3923", "unidad": "N", "metodo": "ASTM D2596", "nombre_en_pdf": "Weld load"}
+    },
+    "otras_propiedades": [],
+    "descripcion": "Grasa de complejo de litio para rodamientos.", "aplicaciones": "Rodamientos industriales.",
+    "beneficios_caracteristicas": null, "certificaciones": null
+  },
+  {
+    "archivo_fuente": "ficha_ficticia.pdf", "marca": "Marca Ficticia", "fabricante": "Ficticia S.A.",
+    "nombre_producto": "FICTIFOOD 2", "familia": "grasa",
+    "numero_producto": null, "fecha_documento": null, "reemplaza_a": null,
+    "propiedades": {
+      "grado_nlgi": {"valor": "2", "unidad": null, "metodo": null, "nombre_en_pdf": "NLGI"},
+      "temperatura_servicio_min": {"valor": "-20", "unidad": "°C", "metodo": null, "nombre_en_pdf": "Temp"},
+      "temperatura_servicio_max": {"valor": "160", "unidad": "°C", "metodo": null, "nombre_en_pdf": "Temp"}
+    },
+    "otras_propiedades": [],
+    "descripcion": null, "aplicaciones": null, "beneficios_caracteristicas": null,
+    "certificaciones": "NSF H1"
+  },
+  {
+    "archivo_fuente": "ficha_ficticia.pdf", "marca": "Marca Ficticia", "fabricante": "Ficticia S.A.",
+    "nombre_producto": "FICTIGRASA VIEJA 2", "familia": "grasa",
+    "numero_producto": null, "fecha_documento": null, "reemplaza_a": null,
+    "propiedades": {"grado_nlgi": {"valor": "2", "unidad": null, "metodo": null, "nombre_en_pdf": "NLGI"}},
+    "otras_propiedades": [],
+    "descripcion": null, "aplicaciones": null, "beneficios_caracteristicas": null, "certificaciones": null
+  }
+]

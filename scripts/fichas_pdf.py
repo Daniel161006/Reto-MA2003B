@@ -159,7 +159,7 @@ def parse_valor(valor, unidad=None):
     if x is None:
         return np.nan, None
     if unidad and re.fullmatch(r"\s*N\s*", unidad):
-        x *= N_A_KGF
+        x = round(x * N_A_KGF, 1)  # 1 decimal: the N value already carries rounding
     return x, tipo
 
 
